@@ -1,0 +1,32 @@
+# Node modules
+node_modules/
+client/node_modules/
+server/node_modules/
+
+# Logs
+*.log
+
+# Environment variables
+.env
+server/.env
+client/.env
+
+# Build outputs
+client/build/
+dist/
+build/
+
+# OS specific
+.DS_Store
+Thumbs.db
+
+# IDE/editor settings
+.vscode/
+.idea/
+*.swp
+
+# coverage reports
+coverage/
+
+# local testing
+*.local
