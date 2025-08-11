@@ -1,4 +1,4 @@
-# MERN Notes App(Thinknote)
+# MERN Notes App(ThinkBoard)
 
 A full-stack MERN application that allows users to create, view, update, and delete notes without requiring any login or registration. The app provides a fast, responsive, and simple note-taking experience.
 
