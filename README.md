@@ -27,9 +27,7 @@ cd backend
 npm install
 npm start
 Frontend
-bash
-Copy
-Edit
+
 cd frontend/vite-project
 npm install
 npm run dev
@@ -43,9 +41,6 @@ Create, edit, delete, and search notes — no account required.
 Enjoy a smooth and distraction-free note-taking experience.
 
 Project Structure
-bash
-Copy
-Edit
 MERN-Notes-app/
   ├── backend/           # API logic and server configuration
   ├── frontend/          # React UI
