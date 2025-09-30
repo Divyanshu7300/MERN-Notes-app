@@ -51,7 +51,3 @@ Author
 Created by Divyanshu Nagar.
 
 
-
-If you want, I can also **rewrite your backend `routes` and `controllers`** so they are completely free of authentication logic, matching this README. That way your repo and docs will be fully consistent.  
-
-Do you want me to prepare those code changes next?
