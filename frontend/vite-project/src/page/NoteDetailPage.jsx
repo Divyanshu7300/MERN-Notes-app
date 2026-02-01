@@ -1,111 +1,122 @@
-import React, { useEffect, useState } from 'react';
-import { useNavigate, useParams, Link } from 'react-router-dom';
-import api from '../lib/axios';
+import { useEffect, useState } from 'react';
+import { Link, useNavigate, useParams } from 'react-router-dom';
+import { ArrowLeftIcon, LoaderIcon } from 'lucide-react';
 import toast from 'react-hot-toast';
-import { LoaderIcon, ArrowLeftIcon } from 'lucide-react';
+import api from '../lib/axios';
 
 const NoteDetailPage = () => {
+  const { id } = useParams();
+  const navigate = useNavigate();
+
   const [title, setTitle] = useState('');
   const [content, setContent] = useState('');
-  const [loading, setLoading] = useState(true);
+  const [state, setState] = useState('loading'); // loading | ready
   const [saving, setSaving] = useState(false);
 
-  const navigate = useNavigate();
-  const { id } = useParams();
-
   useEffect(() => {
-    const fetchNote = async () => {
+    const loadNote = async () => {
       try {
         const res = await api.get(`/notes/${id}`);
         setTitle(res.data.title);
         setContent(res.data.content);
-      } catch (error) {
-        toast.error("Failed to fetch the note");
-        console.error(error);
-      } finally {
-        setLoading(false);
+        setState('ready');
+      } catch (err) {
+        toast.error('Failed to load note');
+        navigate('/');
       }
     };
 
-    fetchNote();
-  }, [id]);
+    loadNote();
+  }, [id, navigate]);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setSaving(true);
-    try {
-      await api.put(`/notes/${id}`, { title, content });
-      toast.success("Note updated successfully!");
-      navigate('/'); // redirect to home or notes page
-    } catch (error) {
-      toast.error("Failed to update the note");
-      console.error(error);
-    } finally {
-      setSaving(false);
-    }
-  };
-
-  if (loading) {
+  if (state === 'loading') {
     return (
-      <div className="flex items-center justify-center h-screen">
-        <LoaderIcon className="animate-spin" size={40} />
-      </div>
+      <main className="min-h-screen bg-white flex items-center justify-center">
+        <LoaderIcon className="animate-spin text-gray-400" />
+      </main>
     );
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-green-200 to-green-500 flex items-center justify-center p-4">
-      <div className="bg-white bg-opacity-80 rounded-2xl shadow-lg p-8 w-full max-w-lg">
-        <Link to="/" className="flex items-center text-yellow-600 hover:text-yellow-800 mb-4">
-          <ArrowLeftIcon className="size-5 mr-2" />
-          <span className="font-semibold">Back to notes</span>
+    <main className="min-h-screen bg-white text-black">
+      <section className="max-w-3xl mx-auto px-6 py-12">
+
+        {/* Back */}
+        <Link
+          to="/"
+          className="inline-flex items-center text-sm text-gray-500 hover:text-black mb-8"
+        >
+          <ArrowLeftIcon className="w-4 h-4 mr-2" />
+          Back
         </Link>
 
-        <h2 className="text-2xl font-bold text-center text-green-800 mb-6">
-          Edit Note
-        </h2>
+        {/* Header */}
+        <header className="mb-8">
+          <h1 className="text-2xl font-semibold">Edit note</h1>
+          <p className="text-sm text-gray-500 mt-1">
+            Update your thoughts.
+          </p>
+        </header>
 
-        <form onSubmit={handleSubmit} className="space-y-4">
+        {/* Form */}
+        <form onSubmit={async (e) => {
+          e.preventDefault();
+          setSaving(true);
+
+          try {
+            await api.put(`/notes/${id}`, { title, content });
+            toast.success('Note updated');
+            navigate('/');
+          } catch {
+            toast.error('Failed to save changes');
+          } finally {
+            setSaving(false);
+          }
+        }} className="space-y-6">
+
           <div>
-            <label htmlFor="title" className="block text-sm font-medium text-gray-700">
+            <label className="block text-sm font-medium mb-1">
               Title
             </label>
             <input
               type="text"
-              id="title"
-              value={title}
               required
+              value={title}
               onChange={(e) => setTitle(e.target.value)}
-              placeholder="Note Title"
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
+              className="w-full border border-gray-300 px-3 py-2 text-sm
+                         focus:outline-none focus:border-black"
             />
           </div>
 
           <div>
-            <label htmlFor="content" className="block text-sm font-medium text-gray-700">
-              Note Content
+            <label className="block text-sm font-medium mb-1">
+              Content
             </label>
             <textarea
+              rows={6}
               required
-              id="content"
               value={content}
               onChange={(e) => setContent(e.target.value)}
-              placeholder="Content"
-              rows={4}
-              className="mt-1 w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-green-400"
-            ></textarea>
+              className="w-full border border-gray-300 px-3 py-2 text-sm
+                         focus:outline-none focus:border-black resize-none"
+            />
           </div>
 
-          <button
-            type="submit"
-            className="w-full bg-green-600 hover:bg-green-700 text-white font-semibold py-2 rounded-md shadow-md transition duration-300"
-            disabled={saving}
-          >
-            {saving ? "Saving..." : "Save Changes"}
-          </button>
+          <div className="pt-4">
+            <button
+              type="submit"
+              disabled={saving}
+              className="inline-flex items-center px-4 py-2 text-sm font-medium
+                         bg-black text-white hover:bg-gray-900
+                         disabled:opacity-50"
+            >
+              {saving ? 'Saving…' : 'Save changes'}
+            </button>
+          </div>
+
         </form>
-      </div>
-    </div>
+      </section>
+    </main>
   );
 };
 

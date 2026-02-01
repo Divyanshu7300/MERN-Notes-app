@@ -1,23 +1,33 @@
-import React from 'react'
-import {Link} from "react-router"
-import {PlusIcon} from "lucide-react"
+import { Link } from 'react-router-dom';
+import { PlusIcon } from 'lucide-react';
 
 const Navbar = () => {
   return (
-    <header className='bg-base-300 border-b border-base-content/10'>
-      <div className='mx-auto mx-w-6xl p-4'>
-        <div className='flex items-center justify-between'>
-          <h1 className='text-3xl font-bold text-primary font-mono tracking-tight'>ThinkBoard</h1>
-          <div className='flex items-center gap-4'></div>
-            <Link to={"/create"} className='btn btn-primary'>
-             <PlusIcon className='size-5' />
-             <span>New Note</span>
-            </Link> 
-          
-        </div>
+    <header className="border-b border-gray-200 bg-white">
+      <div className="max-w-6xl mx-auto px-6 py-4 flex items-center justify-between">
+
+        {/* Brand */}
+        <Link
+          to="/"
+          className="text-lg font-semibold tracking-tight text-black"
+        >
+          ThinkBoard
+        </Link>
+
+        {/* Action */}
+        <Link
+          to="/create"
+          className="inline-flex items-center gap-2
+                     px-3 py-2 text-sm font-medium
+                     bg-black text-white hover:bg-gray-900"
+        >
+          <PlusIcon size={16} />
+          New note
+        </Link>
+
       </div>
     </header>
-  )
-}
+  );
+};
 
 export default Navbar;

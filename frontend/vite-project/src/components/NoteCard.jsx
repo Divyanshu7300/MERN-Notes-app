@@ -1,48 +1,67 @@
 import { Edit2Icon, Trash2Icon } from 'lucide-react';
-import React from 'react';
-import { Link } from 'react-router-dom';
-import api from '../lib/axios';
+import { Link, useNavigate } from 'react-router-dom';
 import toast from 'react-hot-toast';
+import api from '../lib/axios';
 
-  const NoteCard = ({ note,setNotes }) => {
-     const handleDelete = async (e,id) => {
+const NoteCard = ({ note, setNotes }) => {
+  const navigate = useNavigate();
 
-     e.preventDefault();//get rid of navigation behavier
-     if(!window.confirm("are you want to delete for sure"))return;
-     
-     try{ 
-      await api.delete(`/notes/${id}`);
-      setNotes((prev)=>prev.filter((note)=>note._id!==id))
-      toast.success("note deleted successfully")
+  const handleDelete = async (e) => {
+    e.stopPropagation();
 
-     }catch(error) {
-      console.log("error while deleting");
-      toast.error("failed to Delete node");
+    if (!confirm('Delete this note?')) return;
 
-     }
-    };  
+    try {
+      await api.delete(`/notes/${note._id}`);
+      setNotes(prev => prev.filter(n => n._id !== note._id));
+      toast.success('Note deleted');
+    } catch {
+      toast.error('Failed to delete note');
+    }
+  };
 
   return (
-    <Link
-      to={`/note/${note._id}`}
-      className="block p-4 bg-white rounded-lg shadow hover:shadow-lg transition-shadow duration-300"
+    <div
+      onClick={() => navigate(`/note/${note._id}`)}
+      className="group cursor-pointer border border-gray-200 rounded-lg p-4
+                 hover:border-gray-400 transition"
     >
-      <h2 className="text-xl font-semibold mb-2">{note.title}</h2>
-      <p className="text-gray-700 mb-4">
-        {note.content.slice(0, 100)}...
+      {/* Title */}
+      <h2 className="text-sm font-medium text-black mb-1 line-clamp-1">
+        {note.title || 'Untitled'}
+      </h2>
+
+      {/* Content */}
+      <p className="text-sm text-gray-600 line-clamp-3 mb-3">
+        {note.content}
       </p>
-      <span className="text-sm text-gray-500">
-        Created on: {new Date(note.createdAt).toLocaleDateString()}
-      </span>
-      <div className="mt-2 flex gap-2">
-        <button onClick={(e) => {handleDelete(e,note._id)}} >
-          <Trash2Icon />
-        </button>
-        <button >
-          <Edit2Icon />
-        </button>
+
+      {/* Footer */}
+      <div className="flex items-center justify-between text-xs text-gray-400">
+        <span>
+          {new Date(note.createdAt).toLocaleDateString()}
+        </span>
+
+        <div className="flex gap-3 opacity-0 group-hover:opacity-100 transition">
+          <button
+            onClick={handleDelete}
+            className="hover:text-black"
+            aria-label="Delete note"
+          >
+            <Trash2Icon size={14} />
+          </button>
+
+          <Link
+            to={`/note/${note._id}`}
+            onClick={(e) => e.stopPropagation()}
+            className="hover:text-black"
+            aria-label="Edit note"
+          >
+            <Edit2Icon size={14} />
+          </Link>
+        </div>
       </div>
-    </Link>
+    </div>
   );
 };
 

@@ -1,61 +1,77 @@
-import React, { useState, useEffect } from 'react';
-import RateLimitedUI from '../components/RateLimitedUI';
-import Navbar from '../components/Navbar';
-import axios from 'axios';
+import { useEffect, useState } from 'react';
 import toast from 'react-hot-toast';
+import api from '../lib/axios';
+
 import NoteCard from '../components/NoteCard';
-import api from '../lib/axios.js';
-import NoNotFound from '../components/NoNotFound.jsx';
+import RateLimitedUI from '../components/RateLimitedUI';
+import NoNotFound from '../components/NoNotFound';
 
 const Homepage = () => {
-  const [isRateLimited, setIsRateLimited] = useState(false);
+  const [state, setState] = useState('loading'); // loading | rate-limited | ready
   const [notes, setNotes] = useState([]);
-  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    const fetchNotes = async () => {
+    const loadNotes = async () => {
       try {
-        const res = await api.get("/notes");
-        console.log(res.data);
+        const res = await api.get('/notes');
         setNotes(res.data);
-        setIsRateLimited(false);
-      } catch (error) {
-        console.error(error);
-        console.log("Error fetching notes");
-        if (error.response && error.response.status === 429) {
-          setIsRateLimited(true);
+        setState('ready');
+      } catch (err) {
+        if (err?.response?.status === 429) {
+          setState('rate-limited');
         } else {
-          toast.error("Error fetching notes");
+          toast.error('Something went wrong');
+          setState('ready');
         }
-      } finally {
-        setLoading(false);
       }
     };
 
-    fetchNotes();
+    loadNotes();
   }, []);
 
   return (
-    <div className='min-h-screen bg-base-200'>
-      <div className='max-w-7xl mx-auto p-4 mt-6'>
-        <h1 className='text-4xl font-bold text-primary mb-4 text-center'>Divyanshu's Notes</h1>
+    <main className="min-h-screen bg-white text-black">
+      <section className="max-w-6xl mx-auto px-6 py-12">
 
-        {isRateLimited && <RateLimitedUI />}
+        {/* Header */}
+        <header className="mb-10">
+          <h1 className="text-3xl font-semibold tracking-tight">
+            Notes
+          </h1>
+          <p className="text-gray-500 text-sm mt-1">
+            A simple place to keep your thoughts.
+          </p>
+        </header>
 
-        {loading && (
-          <div className='text-center text-primary py-10'>Loading notes...</div>
+        {/* States */}
+        {state === 'rate-limited' && <RateLimitedUI />}
+
+        {state === 'loading' && (
+          <div className="space-y-4">
+            <div className="h-24 bg-gray-100 rounded" />
+            <div className="h-24 bg-gray-100 rounded" />
+            <div className="h-24 bg-gray-100 rounded" />
+          </div>
         )}
-        {notes.length > 0 && !isRateLimited && (
-          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6'>
-            {notes.map((note) => (
-              <NoteCard key={note.id} note={note} setNotes={setNotes}/>
-            
+
+        {state === 'ready' && notes.length === 0 && (
+          <NoNotFound />
+        )}
+
+        {state === 'ready' && notes.length > 0 && (
+          <div className="grid gap-6 sm:grid-cols-2 lg:grid-cols-3">
+            {notes.map(note => (
+              <NoteCard
+                key={note.id}
+                note={note}
+                setNotes={setNotes}
+              />
             ))}
           </div>
         )}
-        {notes.length === 0 && !loading && !isRateLimited && <NoNotFound/>}
-      </div>
-    </div>
+
+      </section>
+    </main>
   );
 };
 

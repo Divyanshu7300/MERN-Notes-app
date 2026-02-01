@@ -1,5 +1,3 @@
-import daisyui from 'daisyui';
-
 /** @type {import('tailwindcss').Config} */
 export default {
   content: [
@@ -7,10 +5,15 @@ export default {
     "./src/**/*.{js,ts,jsx,tsx}",
   ],
   theme: {
-    extend: {},
+    extend: {
+      fontFamily: {
+        game: ['Orbitron', 'sans-serif'],
+      },
+      colors: {
+        baseBlack: '#000000',
+        cardBlack: '#0a0a0a',
+      },
+    },
   },
-  plugins: [daisyui],
-  daisyui:{
-    themes:["forest"], //
-  },
+  plugins: [],
 }
