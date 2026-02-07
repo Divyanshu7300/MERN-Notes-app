@@ -1,63 +1,46 @@
 import express from "express";
-import notesRouts from "./routes/notesRouts.js";
+import notesRoutes from "./routes/notesRouts.js";
 import { connectdb } from "./config/db.js";
-import dotenv from "dotenv"
-import cors from "cors"
+import cors from "cors";
 import rateLimiter from "./middleware/rateLimiter.js";
 
-dotenv.config();
 const app = express();
-const PORT=process.env.PORT_A
+const PORT = process.env.PORT || 5001;
 
+// REQUIRED for Render / Upstash
+app.set("trust proxy", 1);
 
+// CORS 
+app.use(
+  cors({
+    origin: process.env.CORS_ORIGIN,
+    credentials: true,
+  })
+);
 
-
-app.use(cors({
-    origin:"http://localhost:5173",
-}))
-//cors is used to allow cross-origin requests, which is necessary when the frontend and backend are on different ports or domains.//it allows the frontend to make requests to the backend without being blocked by the browser's same-origin
-
-
-//middleware
+// Middleware
 app.use(express.json());
-//this middleware will aprse json boddies: req.body
 
-//
-
+// Rate limiter (apply before routes)
 app.use(rateLimiter);
-//used mosthly for auth
-app.use((req,res,next)=>{ 
-    console.log(`req metod is ${req.method} & request URL is ${req.url}`);
-    next();
 
-})
-
-
-
-app.use("/api/notes",notesRouts); 
-
-// app.get("/api/notes",(req,res)=>{
-//     res.send("divyandfskljfdahu");
-// });
-// //status() can be used as a property of res
-// app.post("/api/notes",(req,res)=>{
-//     res.status(201).json({ message:"post created successfully!"});
-// });
-// app.put("/api/nptes/:id",(req,res)=>{
-//     res.status(200).json({ message:"post Updated successfully!"});
-// });
-// //http://localhost:5001/api/notes/2156
-// app.delete("api/notes/:id",(req,res)=>{
-//     res.status(200).json({message:"post deleted successfully!"});
-// });
-
-connectdb().then(()=>{
-    app.listen(PORT,()=>{
-    console.log("server is running ",PORT);
-    
-});
+// Request logger
+app.use((req, res, next) => {
+  console.log(`${req.method} ${req.url}`);
+  next();
 });
 
+// Routes
+app.use("/api/notes", notesRoutes);
 
-
-//
+// DB + Server start
+connectdb()
+  .then(() => {
+    app.listen(PORT, () => {
+      console.log(`Server running on port ${PORT}`);
+    });
+  })
+  .catch((err) => {
+    console.error("DB connection failed", err);
+    process.exit(1);
+  });
